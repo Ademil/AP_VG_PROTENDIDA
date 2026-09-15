@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memorial de Cálculo — Viga Protendida V-01 | NBR 6118:2023</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@300;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Space Grotesk',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);color:#f1f5f9;min-height:100vh;padding:24px;}
+.mono{font-family:'JetBrains Mono',monospace;}
+.container{max-width:1200px;margin:0 auto;}
+.card{background:linear-gradient(135deg,rgba(30,41,59,.9),rgba(15,23,42,.95));backdrop-filter:blur(10px);border:1px solid rgba(59,130,246,.2);border-radius:8px;}
+.technical-border{border:2px solid rgba(59,130,246,.3);box-shadow:0 0 20px rgba(59,130,246,.2);}
+.header-content{padding:20px 24px;display:flex;align-items:center;gap:16px;}
+.header-icon{width:38px;height:38px;color:#60a5fa;flex-shrink:0;}
+.header h1{font-size:1.7rem;font-weight:bold;background:linear-gradient(to right,#60a5fa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.header p{color:#94a3b8;font-family:'JetBrains Mono',monospace;font-size:.8rem;margin-top:2px;}
+.header{margin-bottom:20px;}
+.proj-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 24px;border-top:1px solid rgba(59,130,246,.15);}
+.proj-meta .fld label{display:block;font-size:.65rem;color:#64748b;font-family:'JetBrains Mono',monospace;margin-bottom:3px;}
+.proj-meta .fld input{width:100%;background:#0f172a;border:1px solid rgba(59,130,246,.3);border-radius:4px;padding:6px 8px;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.tab-btn{padding:10px 16px;border-radius:8px;background:#334155;color:#cbd5e1;border:none;font-weight:600;font-size:.8rem;cursor:pointer;transition:.25s;font-family:'Space Grotesk',sans-serif;}
+.tab-btn:hover{background:#475569;}
+.tab-btn.active{background:linear-gradient(to right,#3b82f6,#22d3ee);color:#fff;box-shadow:0 0 20px rgba(59,130,246,.4);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.panel{padding:22px;margin-bottom:18px;}
+.panel-title{display:flex;align-items:center;gap:10px;font-size:1.2rem;font-weight:bold;color:#22d3ee;margin-bottom:18px;}
+.sub-title{font-size:.95rem;font-weight:700;color:#93c5fd;margin:18px 0 10px;padding-top:10px;border-top:1px dashed rgba(59,130,246,.2);}
+.sub-title:first-child{border-top:none;padding-top:0;margin-top:0;}
+.grid{display:grid;gap:14px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:1fr 1fr 1fr;}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr;}
+@media(max-width:768px){.g2,.g3,.g4{grid-template-columns:1fr 1fr;}.proj-meta{grid-template-columns:1fr 1fr;}}
+.fld label{display:block;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-bottom:6px;}
+.fld input,.fld select{width:100%;background:#0f172a;border:1px solid rgba(59,130,246,.3);border-radius:4px;padding:9px 10px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.85rem;}
+.fld input:focus,.fld select:focus{outline:none;border-color:#60a5fa;}
+.fld .hint{font-size:.65rem;color:#64748b;margin-top:4px;}
+.result-box{background:rgba(15,23,42,.55);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+.result-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;border-bottom:1px dashed rgba(148,163,184,.1);}
+.result-row:last-child{border-bottom:none;}
+.result-row .lbl{color:#94a3b8;}
+.result-row .val{color:#e2e8f0;font-weight:700;}
+.result-row .val.hi{color:#67e8f9;}
+.formula{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#64748b;margin:4px 0 8px;}
+.check{border-radius:8px;border:2px solid;padding:14px 16px;margin-bottom:10px;}
+.check.ok{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.5);}
+.check.fail{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.5);}
+.check-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.check-head span.name{font-weight:700;color:#fff;font-size:.9rem;}
+.check-head span.tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:4px;}
+.check.ok .tag{background:rgba(34,197,94,.25);color:#4ade80;}
+.check.fail .tag{background:rgba(239,68,68,.25);color:#f87171;}
+.check-body{display:flex;gap:24px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#cbd5e1;flex-wrap:wrap;}
+.note{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:12px 16px;font-size:.78rem;color:#fcd34d;margin-top:10px;line-height:1.5;}
+.note b{color:#fbbf24;}
+.section-summary{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:768px){.section-summary{grid-template-columns:1fr;}}
+.footer{margin-top:24px;text-align:center;}
+.footer-content{padding:14px;}
+.footer-text{font-size:.7rem;color:#64748b;font-family:'JetBrains Mono',monospace;line-height:1.6;}
+table.mini{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.72rem;margin-top:6px;}
+table.mini th{background:rgba(59,130,246,.15);color:#93c5fd;padding:5px 8px;text-align:left;}
+table.mini td{padding:5px 8px;border-bottom:1px solid rgba(59,130,246,.1);color:#cbd5e1;}
+table.mini tr.sel{background:rgba(59,130,246,.18);}
+
+/* Desenho / esquemas */
+.diagrama-svg-container{background:rgba(15,23,42,.6);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:14px;display:flex;justify-content:center;overflow-x:auto;}
+.diagrama-svg-container svg{max-width:100%;height:auto;}
+.diag-cota{stroke:#64748b;stroke-width:1;}
+.diag-cota-text{fill:#94a3b8;font-family:'JetBrains Mono',monospace;}
+.diag-concreto{fill:rgba(100,116,139,.35);stroke:#94a3b8;stroke-width:1.5;}
+.diag-carga{stroke:#f87171;stroke-width:2.2;fill:#f87171;}
+.diag-carga-text{fill:#fca5a5;font-family:'JetBrains Mono',monospace;font-weight:700;}
+.diag-cabo{stroke:#fbbf24;stroke-width:2.5;fill:none;}
+.diag-cabo-text{fill:#fbbf24;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.diag-comp{fill:rgba(96,165,250,.35);stroke:#60a5fa;}
+.diag-trac{fill:rgba(248,113,113,.35);stroke:#f87171;}
+.diag-legenda{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#cbd5e1;}
+.diag-legenda-item{display:flex;align-items:center;gap:6px;}
+.diag-legenda-swatch{width:18px;height:10px;display:inline-block;border-radius:2px;}
+.seg-control{display:flex;gap:8px;margin-bottom:14px;}
+.seg-btn{padding:8px 14px;border-radius:6px;background:#334155;color:#cbd5e1;border:none;font-family:'JetBrains Mono',monospace;font-size:.75rem;cursor:pointer;font-weight:600;}
+.seg-btn.active{background:linear-gradient(to right,#3b82f6,#22d3ee);color:#fff;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="card technical-border">
+      <div class="header-content">
+        <svg class="header-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19h16M6 19V9l6-4 6 4v10M9 19v-6h6v6"/></svg>
+        <div>
+          <h1>MEMORIAL DE CÁLCULO — VIGA PROTENDIDA</h1>
+          <p>Dimensionamento e verificação de tensões conforme ABNT NBR 6118:2023</p>
+        </div>
+      </div>
+      <div class="proj-meta">
+        <div class="fld"><label>PROJETO</label><input id="mProjeto" value="Projeto Estrutural de Viga Protendida V-01"></div>
+        <div class="fld"><label>LOCALIZAÇÃO</label><input id="mLocal" value="Tubarão - SC"></div>
+        <div class="fld"><label>RESPONSÁVEL TÉCNICO</label><input id="mResp" value="Eng. A. Pavan - CREA/SC"></div>
+        <div class="fld"><label>DATA</label><input id="mData" value="Julho / 2026"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="secao" onclick="setTab('secao')">1. SEÇÃO</button>
+    <button class="tab-btn" data-tab="materiais" onclick="setTab('materiais')">2. MATERIAIS / CAA</button>
+    <button class="tab-btn" data-tab="cargas" onclick="setTab('cargas')">3. CARGAS</button>
+    <button class="tab-btn" data-tab="protensao" onclick="setTab('protensao')">4. PROTENSÃO</button>
+    <button class="tab-btn" data-tab="tensoes" onclick="setTab('tensoes')">5. TENSÕES</button>
+    <button class="tab-btn" data-tab="desenho" onclick="setTab('desenho')">6. DESENHO DA VIGA</button>
+    <button class="tab-btn" data-tab="resumo" onclick="setTab('resumo')">7. RESUMO</button>
+  </div>
+
+  <!-- TAB 1: SEÇÃO -->
+  <div class="tab-panel active" id="tab-secao">
+    <div class="card panel">
+      <div class="panel-title">GEOMETRIA E DADOS TÉCNICOS DO VÃO</div>
+
+      <div class="sub-title" style="margin-top:0;">Tipo de viga</div>
+      <div class="seg-control">
+        <button type="button" class="seg-btn active" id="btn-tipoT" onclick="setTipoViga('T')">SEÇÃO T</button>
+        <button type="button" class="seg-btn" id="btn-tipoRet" onclick="setTipoViga('retangular')">SEÇÃO RETANGULAR</button>
+      </div>
+
+      <div class="sub-title" style="margin-top:0;">Vão e seção transversal</div>
+      <div class="grid g3">
+        <div class="fld"><label>Vão livre L (m)</label><input type="number" id="L" value="15.00" step="0.01" oninput="calcularTudo()"></div>
+        <div class="fld"><label>Altura total h (cm)</label><input type="number" id="h" value="85" step="0.1" oninput="calcularTudo()"></div>
+        <div class="fld" id="fld-bf"><label>Largura mesa bf (cm)</label><input type="number" id="bf" value="60" step="0.1" oninput="calcularTudo()"></div>
+        <div class="fld" id="fld-hf"><label>Espessura mesa hf (cm)</label><input type="number" id="hf" value="15" step="0.1" oninput="calcularTudo()"></div>
+        <div class="fld" id="fld-bw"><label>Largura alma bw (cm)</label><input type="number" id="bw" value="25" step="0.1" oninput="calcularTudo()"></div>
+        <div class="fld" id="fld-b" style="display:none;"><label>Largura b (cm)</label><input type="number" id="b" value="25" step="0.1" oninput="calcularTudo()"></div>
+      </div>
+
+      <div class="sub-title">Propriedades geométricas da seção bruta (calculadas)</div>
+      <div class="result-box">
+        <div class="result-row"><span class="lbl">Área da seção Ac</span><span class="val" id="out-Ac">-</span></div>
+        <div class="result-row"><span class="lbl">Posição do CG — y<sub>inf</sub> (da base)</span><span class="val" id="out-yinf">-</span></div>
+        <div class="result-row"><span class="lbl">Posição do CG — y<sub>sup</sub> (do topo)</span><span class="val" id="out-ysup">-</span></div>
+        <div class="result-row"><span class="lbl">Momento de Inércia Ix</span><span class="val" id="out-Ix">-</span></div>
+        <div class="result-row"><span class="lbl">Módulo resistente inferior W<sub>inf</sub> = I<sub>x</sub>/y<sub>inf</sub></span><span class="val hi" id="out-Winf">-</span></div>
+        <div class="result-row"><span class="lbl">Módulo resistente superior W<sub>sup</sub> = I<sub>x</sub>/y<sub>sup</sub></span><span class="val hi" id="out-Wsup">-</span></div>
+      </div>
+      <p class="formula">A<sub>c</sub> = b<sub>f</sub>·h<sub>f</sub> + b<sub>w</sub>·(h−h<sub>f</sub>) &nbsp;|&nbsp; y<sub>inf</sub> = Σ(A<sub>i</sub>·y<sub>i</sub>)/A<sub>c</sub> &nbsp;|&nbsp; I<sub>x</sub> = Σ[I<sub>0i</sub> + A<sub>i</sub>·d<sub>i</sub>²]</p>
+
+      <div class="sub-title">Desenho da seção transversal</div>
+      <div class="diagrama-svg-container" id="svg-secao"></div>
+      <div class="diag-legenda">
+        <div class="diag-legenda-item"><span class="diag-legenda-swatch" style="background:rgba(100,116,139,.6);"></span>Concreto</div>
+        <div class="diag-legenda-item"><span class="diag-legenda-swatch" style="background:#fbbf24;"></span>CG do cabo de protensão (e)</div>
+        <div class="diag-legenda-item"><span class="diag-legenda-swatch" style="background:#94a3b8;height:2px;"></span>Cotas (cm)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: MATERIAIS -->
+  <div class="tab-panel" id="tab-materiais">
+    <div class="card panel">
+      <div class="panel-title">MATERIAIS E CLASSE DE AGRESSIVIDADE AMBIENTAL (CAA)</div>
+      <div class="grid g3">
+        <div class="fld"><label>Classe de Agressividade Ambiental</label>
+          <select id="caa" oninput="calcularTudo()">
+            <option value="1">CAA I — Fraca (Rural/Interior)</option>
+            <option value="2">CAA II — Moderada (Urbana)</option>
+            <option value="3" selected>CAA III — Forte (Marinha/Industrial)</option>
+            <option value="4">CAA IV — Muito Forte (Respingos de Maré)</option>
+          </select>
+          <div class="hint" id="caa-hint">cobrimento nominal automático (Tab. 7.2, elemento protendido)</div>
+        </div>
+        <div class="fld"><label>Cobrimento nominal c<sub>nom</sub> (mm)</label><input type="number" id="cnom" value="40" step="1" oninput="calcularTudo()"></div>
+        <div class="fld"><label>fck do concreto (MPa)</label><input type="number" id="fck" value="40" step="1" oninput="calcularTudo()"></div>
+      </div>
+
+      <div class="sub-title">Resistências do concreto (calculadas)</div>
+      <div class="result-box">
+        <div class="result-row"><span class="lbl">f<sub>ct,m</sub> = 0,3·f<sub>ck</sub><sup>2/3</sup></span><span class="val" id="out-fctm">-</span></div>
+        <div class="result-row"><span class="lbl">f<sub>ctk,inf</sub> = 0,7·f<sub>ct,m</sub></span><span class="val" id="out-fctkinf">-</span></div>
+        <div class="result-row"><span class="lbl">f<sub>ctk,sup</sub> = 1,3·f<sub>ct,m</sub></span><span class="val" id="out-fctksup">-</span></div>
+      </div>
+      <div class="sub-title">Módulo de elasticidade do concreto (automático — NBR 6118:2023, item 8.2.8)</div>
+      <div class="grid g2">
+        <div class="fld"><label>Agregado graúdo (define α<sub>E</sub>)</label>
+          <select id="agregado" onchange="calcularTudo()">
+            <option value="1.2">Basalto e diabásio (α<sub>E</sub>=1,2)</option>
+            <option value="1.0" selected>Granito e gnaisse (α<sub>E</sub>=1,0)</option>
+            <option value="0.9">Calcário (α<sub>E</sub>=0,9)</option>
+            <option value="0.7">Arenito (α<sub>E</sub>=0,7)</option>
+          </select>
+        </div>
+        <div class="fld"><label>γ<sub>c</sub> — peso específico do concreto (kN/m³)</label><input type="number" id="gammac" value="25" step="0.1" oninput="calcularTudo()"></div>
+      </div>
+      <div class="result-box" style="margin-top:10px;">
+        <div class="result-row"><span class="lbl">E<sub>ci</sub> = α<sub>E</sub> · 5600 · √f<sub>ck</sub> &nbsp;(f<sub>ck</sub> ≤ 50 MPa)</span><span class="val" id="out-Eci">-</span></div>
+        <div class="result-row"><span class="lbl">α<sub>i</sub> = 0,8 + 0,2·f<sub>ck</sub>/80 ≤ 1,0</span><span class="val" id="out-alphai">-</span></div>
+        <div class="result-row"><span class="lbl">E<sub>cs</sub> = α<sub>i</sub> · E<sub>ci</sub> &nbsp;(Eq. 34)</span><span class="val hi" id="out-Ecs">-</span></div>
+      </div>
+      <p class="formula" id="ecs-formula-note">f<sub>ck</sub> = 40 MPa ≤ 50 MPa → fórmulas válidas conforme item 8.2.8 da NBR 6118:2023.</p>
+
+      <div class="sub-title">Aço de protensão — Cordoalhas (pós-tração com aderência posterior)</div>
+      <div class="grid g4">
+        <div class="fld"><label>Bitola da cordoalha</label>
+          <select id="cordoalha" onchange="setCordoalha()">
+            <option value="9.5">CP190 RB ⌀9,5mm (Ap=0,548 cm²)</option>
+            <option value="12.7" selected>CP190 RB ⌀12,7mm (Ap=0,987 cm²)</option>
+            <option value="15.2">CP190 RB ⌀15,2mm (Ap=1,407 cm²)</option>
+          </select>
+        </div>
+        <div class="fld"><label>Área por cordoalha A<sub>p1</sub> (cm²)</label><input type="number" id="ap1" value="0.987" step="0.001" oninput="calcularTudo()"></div>
+        <div class="fld"><label>f<sub>ptk</sub> (MPa)</label><input type="number" id="fptk" value="1900" step="1" oninput="calcularTudo()"></div>
+        <div class="fld"><label>f<sub>p0,1k</sub> (MPa)</label><input type="number" id="fp01k" value="1710" step="1" oninput="calcularTudo()"></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px;">
+        <div class="fld"><label>Módulo de Elasticidade E<sub>p</sub> (GPa)</label><input type="number" id="ep" value="195" step="1" oninput="calcularTudo()"></div>
+        <div class="fld"><label>Aço passivo CA-50 — f<sub>yk</sub> (MPa)</label><input type="number" id="fyk" value="500" step="1" oninput="calcularTudo()"></div>
+      </div>
+
+      <div class="note"><b>CAA III (Forte — Marinha/Industrial):</b> conforme Tabela 13.4 da NBR 6118:2023, ambientes com CAA III/IV normalmente exigem <b>protensão completa ou limitada</b> (verificações ELS-F e ELS-D obrigatórias), o que é adotado nas verificações da aba "5. TENSÕES".</div>
+    </div>
+  </div>
+
+  <!-- TAB 3: CARGAS -->
+  <div class="tab-panel" id="tab-cargas">
+    <div class="card panel">
+      <div class="panel-title">CARGAS ATUANTES E ESFORÇOS SOLICITANTES</div>
+      <div class="sub-title">Cargas distribuídas (kN/m)</div>
+      <div class="grid g3">
+        <div class="fld"><label>g₁ — Peso próprio (automático)</label><input type="text" id="g1disp" readonly style="opacity:.85"></div>
+        <div class="fld"><label>g₂ — Carga permanente adicional (kN/m)</label><input type="number" id="g2" value="0" step="0.1" oninput="calcularTudo()"><div class="hint">pavimentação, revestimento, alvenaria etc. — ajuste conforme seu memorial</div></div>
+        <div class="fld"><label>q — Carga acidental / sobrecarga (kN/m)</label><input type="number" id="q" value="0" step="0.1" oninput="calcularTudo()"><div class="hint">carga variável de utilização — ajuste conforme seu memorial</div></div>
+      </div>
+      <p class="formula">g₁ = A<sub>c</sub> · γ<sub>c</sub></p>
+
+      <div class="sub-title">Fatores de combinação (NBR 8681)</div>
+      <div class="grid g3">
+        <div class="fld"><label>ψ₁ (combinação frequente)</label><input type="number" id="psi1" value="0.6" step="0.01" oninput="calcularTudo()"></div>
+        <div class="fld"><label>ψ₂ (combinação quase-permanente)</label><input type="number" id="psi2" value="0.4" step="0.01" oninput="calcularTudo()"></div>
+        <div class="fld"><label>γ<sub>f</sub> (ELU)</label><input type="number" id="gammaf" value="1.4" step="0.01" oninput="calcularTudo()"></div>
+      </div>
+
+      <div class="sub-title">Momentos fletores no meio do vão — M = w·L²/8</div>
+      <div class="result-box">
+        <div class="result-row"><span class="lbl">M<sub>g1</sub> (peso próprio)</span><span class="val" id="out-Mg1">-</span></div>
+        <div class="result-row"><span class="lbl">M<sub>g2</sub> (permanente adicional)</span><span class="val" id="out-Mg2">-</span></div>
+        <div class="result-row"><span class="lbl">M<sub>q</sub> (acidental)</span><span class="val" id="out-Mq">-</span></div>
+        <div class="result-row"><span class="lbl">M<sub>ELS,freq</sub> = M<sub>g1</sub>+M<sub>g2</sub>+ψ₁·M<sub>q</sub></span><span class="val hi" id="out-Mfreq">-</span></div>
+        <div class="result-row"><span class="lbl">M<sub>ELS,qp</sub> = M<sub>g1</sub>+M<sub>g2</sub>+ψ₂·M<sub>q</sub></span><span class="val hi" id="out-Mqp">-</span></div>
+        <div class="result-row"><span class="lbl">M<sub>d</sub> (ELU) = γ<sub>f</sub>·(M<sub>g1</sub>+M<sub>g2</sub>+M<sub>q</sub>)</span><span class="val hi" id="out-Md">-</span></div>
+      </div>
+      <div class="note">Coeficientes γ<sub>f</sub>, ψ₁ e ψ₂ podem variar conforme o tipo de estrutura (edificação, ponte etc.) e a combinação normativa aplicável — ajuste os valores acima conforme a NBR 8681 / NBR 7188 pertinente ao seu projeto.</div>
+    </div>
+  </div>
+
+  <!-- TAB 4: PROTENSÃO -->
+  <div class="tab-panel" id="tab-protensao">
+    <div class="card panel">
+      <div class="panel-title">FORÇA DE PROTENSÃO E PERDAS</div>
+      <div class="grid g4">
+        <div class="fld"><label>Número de cordoalhas (n)</label><input type="number" id="ncord" value="8" step="1" oninput="calcularTudo()"></div>
+        <div class="fld"><label>A<sub>p,total</sub> = n · A<sub>p1</sub> (automático)</label><input type="text" id="apdisp" readonly style="opacity:.85"></div>
+        <div class="fld"><label>Tensão inicial σ<sub>p0</sub> (% de f<sub>ptk</sub>)</label><input type="number" id="pctInicial" value="74" step="1" oninput="calcularTudo()"><div class="hint">limite NBR 6118: ≤ 0,74f<sub>ptk</sub> e ≤ 0,85f<sub>p0,1k</sub></div></div>
+        <div class="fld"><label>Excentricidade e (cm)</label><input type="number" id="ecc" value="30" step="0.1" oninput="calcularTudo()"><div class="hint">CG do cabo em relação ao CG da seção</div></div>
+      </div>
+
+      <div class="sub-title">Perdas de protensão</div>
+      <div class="grid g2">
+        <div class="fld"><label>Perdas imediatas (%) — atrito, encunhamento, encurtamento elástico</label><input type="number" id="perdaImed" value="6" step="0.1" oninput="calcularTudo()"></div>
+        <div class="fld"><label>Perdas progressivas totais (%) — fluência, retração, relaxação</label><input type="number" id="perdaProg" value="15" step="0.1" oninput="calcularTudo()"></div>
+      </div>
+
+      <div class="sub-title">Resultados</div>
+      <div class="result-box">
+        <div class="result-row"><span class="lbl">σ<sub>p0</sub> — tensão inicial de protensão</span><span class="val" id="out-sigmap0">-</span></div>
+        <div class="result-row"><span class="lbl">P<sub>0</sub> = σ<sub>p0</sub> · A<sub>p,total</sub></span><span class="val hi" id="out-P0">-</span></div>
+        <div class="result-row"><span class="lbl">P<sub>0i</sub> — após perdas imediatas (ato da protensão)</span><span class="val hi" id="out-P0i">-</span></div>
+        <div class="result-row"><span class="lbl">P<sub>∞</sub> — após perdas totais (tempo infinito / serviço)</span><span class="val hi" id="out-Pinf">-</span></div>
+      </div>
+      <p class="formula">P<sub>0</sub>(kN) = σ<sub>p0</sub>(MPa) · A<sub>p,total</sub>(cm²) · 0,1</p>
+      <div class="note">Os percentuais de perdas imediatas/progressivas são estimativas editáveis. Para o memorial definitivo, substitua pelos valores calculados detalhadamente (perdas por atrito, encunhamento, encurtamento elástico, fluência, retração do concreto e relaxação do aço) conforme NBR 6118, itens 9.6.3 e 9.6.4.</div>
+    </div>
+  </div>
+
+  <!-- TAB 5: TENSÕES -->
+  <div class="tab-panel" id="tab-tensoes">
+    <div class="card panel">
+      <div class="panel-title">VERIFICAÇÃO DE TENSÕES NAS FIBRAS EXTREMAS</div>
+      <p class="formula">σ<sub>sup</sub> = P/A<sub>c</sub> − P·e/W<sub>sup</sub> + M/W<sub>sup</sub> &nbsp;&nbsp;|&nbsp;&nbsp; σ<sub>inf</sub> = P/A<sub>c</sub> + P·e/W<sub>inf</sub> − M/W<sub>inf</sub> &nbsp;&nbsp;(compressão positiva)</p>
+
+      <div class="sub-title">Fase 1 — Ato da protensão (t₀): P = P<sub>0i</sub>, M = M<sub>g1</sub></div>
+      <div id="check-ato-sup"></div>
+      <div id="check-ato-inf"></div>
+
+      <div class="sub-title">Fase 2 — Serviço, combinação frequente (ELS-F): P = P<sub>∞</sub>, M = M<sub>ELS,freq</sub></div>
+      <div id="check-freq-sup"></div>
+      <div id="check-freq-inf"></div>
+
+      <div class="sub-title">Fase 3 — Serviço, combinação quase-permanente (ELS-D — descompressão): P = P<sub>∞</sub>, M = M<sub>ELS,qp</sub></div>
+      <div id="check-qp-sup"></div>
+      <div id="check-qp-inf"></div>
+
+      <div class="note">Limites adotados: <b>compressão</b> ≤ 0,7f<sub>ck</sub> no ato (aproximação — usar f<sub>ckj</sub> quando disponível) e 0,6f<sub>ck</sub> em serviço; <b>tração no ELS-F</b> ≤ f<sub>ctk,inf</sub>; <b>ELS-D</b> exige tensão ≥ 0 (sem tração) na fibra considerada, adequado a CAA III/IV com protensão completa/limitada (NBR 6118, Tabela 13.4).</div>
+    </div>
+  </div>
+
+  <!-- TAB 6: DESENHO DA VIGA -->
+  <div class="tab-panel" id="tab-desenho">
+    <div class="card panel">
+      <div class="panel-title">ELEVAÇÃO DA VIGA — VÃO, CARGAS E CABO DE PROTENSÃO</div>
+      <div class="diagrama-svg-container" id="svg-elevacao"></div>
+      <div class="diag-legenda">
+        <div class="diag-legenda-item"><span class="diag-legenda-swatch" style="background:rgba(100,116,139,.6);"></span>Viga (concreto)</div>
+        <div class="diag-legenda-item"><span class="diag-legenda-swatch" style="background:#f87171;"></span>Cargas distribuídas (g₁+g₂+q)</div>
+        <div class="diag-legenda-item"><span class="diag-legenda-swatch" style="background:#fbbf24;"></span>Traçado do cabo de protensão</div>
+      </div>
+    </div>
+
+    <div class="card panel">
+      <div class="panel-title">DIAGRAMA DE TENSÕES NA SEÇÃO DO MEIO DO VÃO</div>
+      <div class="seg-control">
+        <button type="button" class="seg-btn active" id="btn-faseAto" onclick="setFaseTensao('ato')">ATO DA PROTENSÃO</button>
+        <button type="button" class="seg-btn" id="btn-faseFreq" onclick="setFaseTensao('freq')">ELS-F (FREQUENTE)</button>
+        <button type="button" class="seg-btn" id="btn-faseQp" onclick="setFaseTensao('qp')">ELS-D (QUASE-PERM.)</button>
+      </div>
+      <div class="diagrama-svg-container" id="svg-tensoes"></div>
+      <div class="diag-legenda">
+        <div class="diag-legenda-item"><span class="diag-legenda-swatch" style="background:rgba(96,165,250,.6);"></span>Compressão</div>
+        <div class="diag-legenda-item"><span class="diag-legenda-swatch" style="background:rgba(248,113,113,.6);"></span>Tração</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 7: RESUMO -->
+  <div class="tab-panel" id="tab-resumo">
+    <div class="card panel">
+      <div class="panel-title">RESUMO DO MEMORIAL DE CÁLCULO</div>
+      <div class="section-summary">
+        <div>
+          <div class="sub-title" style="margin-top:0;">Seção e materiais</div>
+          <div class="result-box" id="resumo-secao"></div>
+        </div>
+        <div>
+          <div class="sub-title" style="margin-top:0;">Cargas e esforços</div>
+          <div class="result-box" id="resumo-cargas"></div>
+        </div>
+        <div>
+          <div class="sub-title" style="margin-top:0;">Protensão</div>
+          <div class="result-box" id="resumo-protensao"></div>
+        </div>
+        <div>
+          <div class="sub-title" style="margin-top:0;">Verificações</div>
+          <div class="result-box" id="resumo-verificacoes"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="card footer-content">
+      <p class="footer-text">Cálculos conforme NBR 6118:2023 (Projeto de Estruturas de Concreto) | Ferramenta de apoio ao dimensionamento — Responsabilidade técnica do engenheiro calculista</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function setTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='resumo') montarResumo();
+}
+
+const CNOM_CAA = {"1":30, "2":35, "3":40, "4":50};
+function onCaaChange(){
+  document.getElementById('cnom').value = CNOM_CAA[document.getElementById('caa').value];
+}
+document.getElementById('caa').addEventListener('change', ()=>{ onCaaChange(); calcularTudo(); });
+
+const CORDOALHAS = {"9.5":0.548, "12.7":0.987, "15.2":1.407};
+function setCordoalha(){
+  const v = document.getElementById('cordoalha').value;
+  document.getElementById('ap1').value = CORDOALHAS[v];
+  calcularTudo();
+}
+
+let tipoViga = 'T';
+function setTipoViga(tipo){
+  tipoViga = tipo;
+  document.getElementById('btn-tipoT').classList.toggle('active', tipo==='T');
+  document.getElementById('btn-tipoRet').classList.toggle('active', tipo==='retangular');
+  const isT = tipo==='T';
+  document.getElementById('fld-bf').style.display = isT ? '' : 'none';
+  document.getElementById('fld-hf').style.display = isT ? '' : 'none';
+  document.getElementById('fld-bw').style.display = isT ? '' : 'none';
+  document.getElementById('fld-b').style.display = isT ? 'none' : '';
+  calcularTudo();
+}
+
+let faseTensao = 'ato';
+function setFaseTensao(fase){
+  faseTensao = fase;
+  document.getElementById('btn-faseAto').classList.toggle('active', fase==='ato');
+  document.getElementById('btn-faseFreq').classList.toggle('active', fase==='freq');
+  document.getElementById('btn-faseQp').classList.toggle('active', fase==='qp');
+  renderTensoesSVG();
+}
+
+function gv(id){ return parseFloat(document.getElementById(id).value) || 0; }
+function fmt(v, dec=2){ return isFinite(v) ? v.toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec}) : '-'; }
+
+let R = {}; // resultados globais para o resumo
+
+function calcularTudo(){
+  // ---- 1. SEÇÃO ----
+  const h = gv('h'), L = gv('L');
+  let bf, hf, bw, Ac, yinf, ysup, Ix;
+  if(tipoViga==='T'){
+    bf = gv('bf'); hf = gv('hf'); bw = gv('bw');
+    const Aflange = bf*hf, Aweb = bw*(h-hf);
+    Ac = Aflange + Aweb;
+    const yFlange = h - hf/2, yWeb = (h-hf)/2;
+    yinf = (Aflange*yFlange + Aweb*yWeb)/Ac;
+    ysup = h - yinf;
+    const Iflange0 = bf*Math.pow(hf,3)/12, Iweb0 = bw*Math.pow(h-hf,3)/12;
+    const dFlange = yFlange - yinf, dWeb = Math.abs(yinf - yWeb);
+    Ix = (Iflange0 + Aflange*dFlange*dFlange) + (Iweb0 + Aweb*dWeb*dWeb);
+  } else {
+    const b = gv('b');
+    bf = b; hf = h; bw = b; // seção cheia, usada pelo desenho como retângulo único
+    Ac = b*h;
+    yinf = h/2; ysup = h/2;
+    Ix = b*Math.pow(h,3)/12;
+  }
+  const Winf = Ix/yinf, Wsup = Ix/ysup;
+
+  document.getElementById('out-Ac').textContent = fmt(Ac,1)+' cm² ('+fmt(Ac/10000,4)+' m²)';
+  document.getElementById('out-yinf').textContent = fmt(yinf,1)+' cm';
+  document.getElementById('out-ysup').textContent = fmt(ysup,1)+' cm';
+  document.getElementById('out-Ix').textContent = fmt(Ix,0)+' cm⁴ ('+fmt(Ix/1e6,5)+' m⁴)';
+  document.getElementById('out-Winf').textContent = fmt(Winf,0)+' cm³ ('+fmt(Winf/1e6,4)+' m³)';
+  document.getElementById('out-Wsup').textContent = fmt(Wsup,0)+' cm³ ('+fmt(Wsup/1e6,4)+' m³)';
+
+  // ---- 2. MATERIAIS ----
+  const fck = gv('fck');
+  const fctm = 0.3*Math.pow(fck, 2/3);
+  const fctkinf = 0.7*fctm, fctksup = 1.3*fctm;
+  document.getElementById('out-fctm').textContent = fmt(fctm,2)+' MPa';
+  document.getElementById('out-fctkinf').textContent = fmt(fctkinf,2)+' MPa';
+  document.getElementById('out-fctksup').textContent = fmt(fctksup,2)+' MPa';
+  document.getElementById('caa-hint').textContent = 'cobrimento nominal sugerido: '+CNOM_CAA[document.getElementById('caa').value]+' mm (Tab. 7.2, elemento protendido)';
+
+  const alphaE = gv('agregado');
+  const Eci = alphaE*5600*Math.sqrt(fck); // MPa
+  const alphaI = Math.min(0.8 + 0.2*fck/80, 1.0);
+  const Ecs = alphaI*Eci; // MPa
+  document.getElementById('out-Eci').textContent = fmt(Eci/1000,2)+' GPa';
+  document.getElementById('out-alphai').textContent = fmt(alphaI,3);
+  document.getElementById('out-Ecs').textContent = fmt(Ecs/1000,2)+' GPa';
+  const notaFck = document.getElementById('ecs-formula-note');
+  if(fck>50){
+    notaFck.textContent = 'f_ck = '+fmt(fck,0)+' MPa > 50 MPa → a NBR 6118 usa uma expressão diferente para Eci acima de 50 MPa; revise manualmente para este caso.';
+  } else {
+    notaFck.textContent = 'f_ck = '+fmt(fck,0)+' MPa ≤ 50 MPa → fórmulas válidas conforme item 8.2.8 da NBR 6118:2023.';
+  }
+
+  const gammac = gv('gammac');
+  const g1 = (Ac/10000)*gammac; // kN/m
+  document.getElementById('g1disp').value = fmt(g1,3)+' kN/m';
+
+  // ---- 3. CARGAS ----
+  const g2 = gv('g2'), q = gv('q');
+  const psi1 = gv('psi1'), psi2 = gv('psi2'), gammaf = gv('gammaf');
+  const Mg1 = g1*L*L/8, Mg2 = g2*L*L/8, Mq = q*L*L/8;
+  const Mfreq = Mg1+Mg2+psi1*Mq;
+  const Mqp = Mg1+Mg2+psi2*Mq;
+  const Md = gammaf*(Mg1+Mg2+Mq);
+  document.getElementById('out-Mg1').textContent = fmt(Mg1,2)+' kN·m';
+  document.getElementById('out-Mg2').textContent = fmt(Mg2,2)+' kN·m';
+  document.getElementById('out-Mq').textContent = fmt(Mq,2)+' kN·m';
+  document.getElementById('out-Mfreq').textContent = fmt(Mfreq,2)+' kN·m';
+  document.getElementById('out-Mqp').textContent = fmt(Mqp,2)+' kN·m';
+  document.getElementById('out-Md').textContent = fmt(Md,2)+' kN·m';
+
+  // ---- 4. PROTENSÃO ----
+  const ncord = gv('ncord'), ap1 = gv('ap1');
+  const apTotal = ncord*ap1;
+  document.getElementById('apdisp').value = fmt(apTotal,3)+' cm²';
+  const fptk = gv('fptk'), fp01k = gv('fp01k'), pctInicial = gv('pctInicial');
+  const limite1 = 0.74*fptk, limite2 = 0.85*fp01k;
+  const sigmap0 = Math.min(pctInicial/100*fptk, limite1, limite2);
+  const P0 = sigmap0*apTotal*0.1; // kN
+  const perdaImed = gv('perdaImed'), perdaProg = gv('perdaProg');
+  const P0i = P0*(1-perdaImed/100);
+  const Pinf = P0*(1-(perdaImed+perdaProg)/100);
+  document.getElementById('out-sigmap0').textContent = fmt(sigmap0,1)+' MPa (mín. entre '+pctInicial+'%f_ptk, 0,74f_ptk, 0,85f_p0,1k)';
+  document.getElementById('out-P0').textContent = fmt(P0,1)+' kN';
+  document.getElementById('out-P0i').textContent = fmt(P0i,1)+' kN';
+  document.getElementById('out-Pinf').textContent = fmt(Pinf,1)+' kN';
+
+  // ---- 5. TENSÕES ----
+  const ecc = gv('ecc');
+  function tensoes(P, M){
+    const sup = (P/Ac) - (P*ecc)/Wsup + (M*100/Wsup); // M em kN·m -> kN·cm (×100)
+    const inf = (P/Ac) + (P*ecc)/Winf - (M*100/Winf);
+    // converter kN/cm² -> MPa (×10)
+    return { sup: sup*10, inf: inf*10 };
+  }
+  const tAto = tensoes(P0i, Mg1);
+  const tFreq = tensoes(Pinf, Mfreq);
+  const tQp = tensoes(Pinf, Mqp);
+
+  const limCompAto = 0.7*fck, limCompServ = 0.6*fck;
+  const limTracFreq = fctkinf;
+
+  renderCheck('check-ato-sup', 'σ_sup (ato) — compressão ≤ 0,7f_ck', tAto.sup, limCompAto, 'comp');
+  renderCheck('check-ato-inf', 'σ_inf (ato) — compressão ≤ 0,7f_ck', tAto.inf, limCompAto, 'comp');
+  renderCheck('check-freq-sup', 'σ_sup (ELS-F) — compressão ≤ 0,6f_ck', tFreq.sup, limCompServ, 'comp');
+  renderCheck('check-freq-inf', 'σ_inf (ELS-F) — tração ≤ f_ctk,inf', tFreq.inf, limTracFreq, 'trac');
+  renderCheck('check-qp-sup', 'σ_sup (ELS-D) — sem tração (σ ≥ 0)', tQp.sup, 0, 'descomp');
+  renderCheck('check-qp-inf', 'σ_inf (ELS-D) — sem tração (σ ≥ 0)', tQp.inf, 0, 'descomp');
+
+  R = {Ac, yinf, ysup, Ix, Winf, Wsup, fck, fctm, fctkinf, fctksup, Eci, alphaI, Ecs, g1, g2, q, Mg1, Mg2, Mq, Mfreq, Mqp, Md,
+       ncord, apTotal, sigmap0, P0, P0i, Pinf, ecc, tAto, tFreq, tQp, limCompAto, limCompServ, limTracFreq,
+       tipoViga, h, bf, hf, bw, L};
+
+  renderSecaoSVG();
+  renderElevacaoSVG();
+  renderTensoesSVG();
+}
+
+// ===================== DESENHOS SVG =====================
+
+function renderSecaoSVG(){
+  const cont = document.getElementById('svg-secao');
+  if(!cont) return;
+  const {tipoViga, h, bf, hf, bw, yinf, ysup, ecc} = R;
+  const escala = 260/h; // px por cm, altura de referência 260px
+  const hPx = h*escala;
+  const larguraMax = Math.max(bf, bw)*escala;
+
+  const margEsq = 130;   // espaço p/ cota vertical "h" + rótulo
+  const margTopo = 55;   // espaço p/ cota horizontal superior (bf ou b)
+  const margDir = 230;   // espaço p/ rótulos do CG do cabo / hf
+  const margBase = 55;   // espaço p/ cota inferior (bw), se houver
+
+  const origemX = margEsq, origemY = margTopo;
+  const larguraSVG = margEsq + larguraMax + margDir;
+  const alturaSVG = origemY + hPx + margBase;
+  const centroX = origemX + larguraMax/2;
+
+  let forma = '';
+  if(tipoViga==='T'){
+    const bfPx = bf*escala, bwPx = bw*escala, hfPx = hf*escala;
+    const xFlangeEsq = centroX - bfPx/2, xFlangeDir = centroX + bfPx/2;
+    const xAlmaEsq = centroX - bwPx/2, xAlmaDir = centroX + bwPx/2;
+    forma = `<polygon class="diag-concreto" points="
+      ${xFlangeEsq},${origemY} ${xFlangeDir},${origemY}
+      ${xFlangeDir},${origemY+hfPx} ${xAlmaDir},${origemY+hfPx}
+      ${xAlmaDir},${origemY+hPx} ${xAlmaEsq},${origemY+hPx}
+      ${xAlmaEsq},${origemY+hfPx} ${xFlangeEsq},${origemY+hfPx}"/>`;
+  } else {
+    const bPx = bf*escala;
+    forma = `<rect class="diag-concreto" x="${centroX-bPx/2}" y="${origemY}" width="${bPx}" height="${hPx}"/>`;
+  }
+
+  // CG do cabo (excentricidade e, medida a partir do CG da seção, para baixo)
+  const yCG = origemY + (ysup)*escala; // posição do CG da seção
+  const yCabo = yCG + ecc*escala;
+
+  const xCotaH = origemX - 45;      // linha de cota vertical de h
+  const xRotuloH = origemX - 80;    // rótulo "h = ..." (rotacionado)
+  const yTopoCotaB = origemY - 22;  // linha de cota horizontal superior
+  const yRotuloB = origemY - 30;    // rótulo "b"/"bf" acima da linha
+
+  let svg = `<svg viewBox="0 0 ${larguraSVG} ${alturaSVG}" xmlns="http://www.w3.org/2000/svg" width="100%">
+    <defs>
+      <marker id="setaH" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#64748b"/></marker>
+      <marker id="setaV" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#64748b"/></marker>
+    </defs>
+
+    ${forma}
+    <circle cx="${centroX}" cy="${yCabo}" r="5" fill="#fbbf24" stroke="#78350f" stroke-width="1"/>
+    <line class="diag-cabo" x1="${centroX-18}" y1="${yCabo}" x2="${centroX+18}" y2="${yCabo}" stroke-dasharray="3 2"/>
+    <text class="diag-cabo-text" x="${centroX+26}" y="${yCabo+4}" font-size="13">CG cabo (e=${fmt(ecc,1)}cm)</text>
+    <line class="diag-cota" x1="${centroX}" y1="${yCG}" x2="${centroX}" y2="${yCabo}" stroke-dasharray="2 2"/>
+    <circle cx="${centroX}" cy="${yCG}" r="3" fill="#22d3ee"/>
+    <text class="diag-cota-text" x="${centroX+8}" y="${yCG-6}" font-size="12" fill="#67e8f9">CG seção</text>
+
+    <!-- cota h (vertical, à esquerda) -->
+    <line class="diag-cota" x1="${xCotaH}" y1="${origemY}" x2="${xCotaH}" y2="${origemY+hPx}" marker-start="url(#setaV)" marker-end="url(#setaV)"/>
+    <line class="diag-cota" x1="${xCotaH-6}" y1="${origemY}" x2="${origemX-4}" y2="${origemY}" stroke-dasharray="2 2"/>
+    <line class="diag-cota" x1="${xCotaH-6}" y1="${origemY+hPx}" x2="${origemX-4}" y2="${origemY+hPx}" stroke-dasharray="2 2"/>
+    <text class="diag-cota-text" x="${xRotuloH}" y="${origemY+hPx/2}" font-size="14" font-weight="700" text-anchor="middle" transform="rotate(-90 ${xRotuloH} ${origemY+hPx/2})">h = ${fmt(h,1)} cm</text>
+
+    ${tipoViga==='T' ? `
+    <!-- cota bf (topo) -->
+    <line class="diag-cota" x1="${centroX-bf*escala/2}" y1="${yTopoCotaB}" x2="${centroX+bf*escala/2}" y2="${yTopoCotaB}" marker-start="url(#setaH)" marker-end="url(#setaH)"/>
+    <text class="diag-cota-text" x="${centroX}" y="${yRotuloB}" font-size="14" font-weight="700" text-anchor="middle">bf = ${fmt(bf,1)} cm</text>
+    <!-- cota hf (à direita da mesa) -->
+    <line class="diag-cota" x1="${centroX+bf*escala/2+18}" y1="${origemY}" x2="${centroX+bf*escala/2+18}" y2="${origemY+hf*escala}" marker-start="url(#setaV)" marker-end="url(#setaV)"/>
+    <text class="diag-cota-text" x="${centroX+bf*escala/2+26}" y="${origemY+hf*escala/2+4}" font-size="13" font-weight="700">hf = ${fmt(hf,1)} cm</text>
+    <!-- cota bw (base) -->
+    <line class="diag-cota" x1="${centroX-bw*escala/2}" y1="${origemY+hPx+22}" x2="${centroX+bw*escala/2}" y2="${origemY+hPx+22}" marker-start="url(#setaH)" marker-end="url(#setaH)"/>
+    <text class="diag-cota-text" x="${centroX}" y="${origemY+hPx+40}" font-size="14" font-weight="700" text-anchor="middle">bw = ${fmt(bw,1)} cm</text>
+    ` : `
+    <!-- cota b (topo) -->
+    <line class="diag-cota" x1="${centroX-bf*escala/2}" y1="${yTopoCotaB}" x2="${centroX+bf*escala/2}" y2="${yTopoCotaB}" marker-start="url(#setaH)" marker-end="url(#setaH)"/>
+    <text class="diag-cota-text" x="${centroX}" y="${yRotuloB}" font-size="14" font-weight="700" text-anchor="middle">b = ${fmt(bf,1)} cm</text>
+    `}
+  </svg>`;
+  cont.innerHTML = svg;
+}
+
+function renderElevacaoSVG(){
+  const cont = document.getElementById('svg-elevacao');
+  if(!cont) return;
+  const {L, g1, g2, q, ecc, h} = R;
+  const larguraSVG = 760, alturaSVG = 220;
+  const vigaX = 70, vigaY = 70, vigaComprimento = 620, vigaAltura = 34;
+  const vigaFimX = vigaX + vigaComprimento;
+
+  // traçado do cabo: parabólico, com excentricidade máxima no meio do vão e menor nos apoios
+  const eccPx = Math.min(ecc*1.4, vigaAltura/2-4); // escala visual proporcional, limitada à altura desenhada
+  const yCentro = vigaY + vigaAltura/2;
+  const yMeio = yCentro + eccPx;
+  const yApoio = yCentro - eccPx*0.3;
+  const caboPath = `M ${vigaX+10} ${yApoio} Q ${(vigaX+vigaFimX)/2} ${yMeio+  (yMeio-yApoio)} ${vigaFimX-10} ${yApoio}`;
+
+  const wTotal = g1+g2+q;
+  let cargasSVG = '';
+  const nSetas = 9;
+  for(let i=0;i<=nSetas;i++){
+    const x = vigaX + (vigaComprimento*i/nSetas);
+    cargasSVG += `<line class="diag-carga" x1="${x}" y1="${vigaY-34}" x2="${x}" y2="${vigaY-4}" marker-end="url(#setaCargaE)"/>`;
+  }
+
+  let svg = `<svg viewBox="0 0 ${larguraSVG} ${alturaSVG}" xmlns="http://www.w3.org/2000/svg" width="100%">
+    <defs>
+      <marker id="setaCargaE" markerWidth="9" markerHeight="9" refX="4.5" refY="7" orient="auto"><path d="M0,0 L4.5,7 L9,0 Z" fill="#f87171"/></marker>
+      <marker id="setaCotaE" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#64748b"/></marker>
+    </defs>
+
+    <!-- linha de carga distribuída -->
+    <line x1="${vigaX}" y1="${vigaY-34}" x2="${vigaFimX}" y2="${vigaY-34}" stroke="#f87171" stroke-width="1.5"/>
+    ${cargasSVG}
+    <text class="diag-carga-text" x="${(vigaX+vigaFimX)/2-70}" y="${vigaY-42}" font-size="13">w = g₁+g₂+q = ${fmt(wTotal,2)} kN/m</text>
+
+    <!-- viga -->
+    <rect class="diag-concreto" x="${vigaX}" y="${vigaY}" width="${vigaComprimento}" height="${vigaAltura}"/>
+
+    <!-- cabo de protensão -->
+    <path class="diag-cabo" d="${caboPath}"/>
+    <text class="diag-cabo-text" x="${(vigaX+vigaFimX)/2-60}" y="${yMeio+ (yMeio-yApoio) +16}" font-size="12">cabo de protensão (e=${fmt(ecc,1)}cm no meio do vão)</text>
+
+    <!-- apoios -->
+    <polygon points="${vigaX+5},${vigaY+vigaAltura} ${vigaX-12},${vigaY+vigaAltura+20} ${vigaX+22},${vigaY+vigaAltura+20}" fill="#475569" stroke="#94a3b8"/>
+    <polygon points="${vigaFimX-5},${vigaY+vigaAltura} ${vigaFimX-22},${vigaY+vigaAltura+20} ${vigaFimX+12},${vigaY+vigaAltura+20}" fill="#475569" stroke="#94a3b8"/>
+    <line x1="${vigaX-20}" y1="${vigaY+vigaAltura+20}" x2="${vigaX+30}" y2="${vigaY+vigaAltura+20}" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="${vigaFimX-30}" y1="${vigaY+vigaAltura+20}" x2="${vigaFimX+20}" y2="${vigaY+vigaAltura+20}" stroke="#94a3b8" stroke-width="2"/>
+
+    <!-- cota do vão -->
+    <line class="diag-cota" x1="${vigaX}" y1="${vigaY+vigaAltura+46}" x2="${vigaFimX}" y2="${vigaY+vigaAltura+46}" marker-start="url(#setaCotaE)" marker-end="url(#setaCotaE)"/>
+    <text class="diag-cota-text" x="${(vigaX+vigaFimX)/2-30}" y="${vigaY+vigaAltura+62}" font-size="13">L = ${fmt(L,2)} m</text>
+  </svg>`;
+  cont.innerHTML = svg;
+}
+
+function renderTensoesSVG(){
+  const cont = document.getElementById('svg-tensoes');
+  if(!cont || !R.tAto) return;
+  const t = faseTensao==='ato' ? R.tAto : (faseTensao==='freq' ? R.tFreq : R.tQp);
+  const {h} = R;
+  const larguraSVG = 460, alturaSVG = 260;
+  const vigaX = 190, vigaY = 30, vigaLargura = 90, hPx = 180;
+
+  const maxAbs = Math.max(Math.abs(t.sup), Math.abs(t.inf), 1);
+  const escalaBloco = 90/maxAbs; // px por MPa
+
+  const supPx = t.sup*escalaBloco, infPx = t.inf*escalaBloco;
+  const corSup = t.sup>=0 ? 'diag-comp' : 'diag-trac';
+  const corInf = t.inf>=0 ? 'diag-comp' : 'diag-trac';
+
+  let svg = `<svg viewBox="0 0 ${larguraSVG} ${alturaSVG}" xmlns="http://www.w3.org/2000/svg" width="100%">
+    <!-- seção (retângulo simplificado representando a altura útil) -->
+    <rect class="diag-concreto" x="${vigaX}" y="${vigaY}" width="${vigaLargura}" height="${hPx}"/>
+    <line x1="${vigaX}" y1="${vigaY+hPx/2}" x2="${vigaX+vigaLargura}" y2="${vigaY+hPx/2}" stroke="#475569" stroke-width="1" stroke-dasharray="3 2"/>
+
+    <!-- bloco de tensão superior -->
+    <polygon class="${corSup}" points="${vigaX+vigaLargura},${vigaY} ${vigaX+vigaLargura+supPx},${vigaY} ${vigaX+vigaLargura},${vigaY+2}"/>
+    <line x1="${vigaX+vigaLargura}" y1="${vigaY}" x2="${vigaX+vigaLargura+supPx}" y2="${vigaY}" stroke="${t.sup>=0?'#60a5fa':'#f87171'}" stroke-width="2"/>
+    <text x="${vigaX+vigaLargura+supPx+8}" y="${vigaY+4}" font-size="13" fill="${t.sup>=0?'#93c5fd':'#fca5a5'}" font-family="'JetBrains Mono',monospace" font-weight="700">σsup=${fmt(t.sup,2)} MPa</text>
+
+    <!-- bloco de tensão inferior -->
+    <line x1="${vigaX+vigaLargura}" y1="${vigaY+hPx}" x2="${vigaX+vigaLargura+infPx}" y2="${vigaY+hPx}" stroke="${t.inf>=0?'#60a5fa':'#f87171'}" stroke-width="2"/>
+    <text x="${vigaX+vigaLargura+infPx+8}" y="${vigaY+hPx+4}" font-size="13" fill="${t.inf>=0?'#93c5fd':'#fca5a5'}" font-family="'JetBrains Mono',monospace" font-weight="700">σinf=${fmt(t.inf,2)} MPa</text>
+
+    <!-- diagonal ligando os extremos do diagrama trapezoidal -->
+    <line x1="${vigaX+vigaLargura+supPx}" y1="${vigaY}" x2="${vigaX+vigaLargura+infPx}" y2="${vigaY+hPx}" stroke="${t.sup*t.inf<0?'#94a3b8':'#60a5fa'}" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+    <text x="${vigaX}" y="${vigaY+hPx+28}" font-size="12" fill="#94a3b8" font-family="'JetBrains Mono',monospace">h = ${fmt(h,1)} cm</text>
+  </svg>`;
+  cont.innerHTML = svg;
+}
+
+function renderCheck(id, label, valor, limite, tipo){
+  let ok;
+  if(tipo==='comp') ok = valor <= limite + 1e-6;
+  else if(tipo==='trac') ok = Math.abs(Math.min(valor,0)) <= limite + 1e-6; // só avalia se houver tração
+  else if(tipo==='descomp') ok = valor >= -1e-6; // sem tração
+
+  const el = document.getElementById(id);
+  const statusTxt = ok ? 'OK' : 'VERIFICAR';
+  el.innerHTML = `
+    <div class="check ${ok?'ok':'fail'}">
+      <div class="check-head"><span class="name">${label}</span><span class="tag">${statusTxt}</span></div>
+      <div class="check-body">
+        <span>σ = ${fmt(valor,2)} MPa</span>
+        <span>limite = ${tipo==='descomp' ? '0,00' : fmt(limite,2)} MPa</span>
+      </div>
+    </div>`;
+}
+
+function montarResumo(){
+  document.getElementById('resumo-secao').innerHTML = `
+    <div class="result-row"><span class="lbl">Vão L</span><span class="val">${document.getElementById('L').value} m</span></div>
+    <div class="result-row"><span class="lbl">Seção</span><span class="val">${R.tipoViga==='T'?'T':'Retangular'} (h=${document.getElementById('h').value}cm)</span></div>
+    <div class="result-row"><span class="lbl">Ac</span><span class="val">${fmt(R.Ac,1)} cm²</span></div>
+    <div class="result-row"><span class="lbl">Wsup / Winf</span><span class="val">${fmt(R.Wsup,0)} / ${fmt(R.Winf,0)} cm³</span></div>
+    <div class="result-row"><span class="lbl">fck</span><span class="val">${document.getElementById('fck').value} MPa</span></div>
+    <div class="result-row"><span class="lbl">Ecs</span><span class="val">${fmt(R.Ecs/1000,2)} GPa</span></div>
+    <div class="result-row"><span class="lbl">CAA</span><span class="val">${document.getElementById('caa').selectedOptions[0].text}</span></div>`;
+
+  document.getElementById('resumo-cargas').innerHTML = `
+    <div class="result-row"><span class="lbl">g1 / g2 / q</span><span class="val">${fmt(R.g1,2)} / ${fmt(R.g2,2)} / ${fmt(R.q,2)} kN/m</span></div>
+    <div class="result-row"><span class="lbl">Mg1</span><span class="val">${fmt(R.Mg1,2)} kN·m</span></div>
+    <div class="result-row"><span class="lbl">M ELS-freq</span><span class="val">${fmt(R.Mfreq,2)} kN·m</span></div>
+    <div class="result-row"><span class="lbl">M ELS-qp</span><span class="val">${fmt(R.Mqp,2)} kN·m</span></div>
+    <div class="result-row"><span class="lbl">Md (ELU)</span><span class="val">${fmt(R.Md,2)} kN·m</span></div>`;
+
+  document.getElementById('resumo-protensao').innerHTML = `
+    <div class="result-row"><span class="lbl">Nº cordoalhas / Ap,total</span><span class="val">${R.ncord} / ${fmt(R.apTotal,3)} cm²</span></div>
+    <div class="result-row"><span class="lbl">σp0</span><span class="val">${fmt(R.sigmap0,1)} MPa</span></div>
+    <div class="result-row"><span class="lbl">P0 / P0i / P∞</span><span class="val">${fmt(R.P0,0)} / ${fmt(R.P0i,0)} / ${fmt(R.Pinf,0)} kN</span></div>
+    <div class="result-row"><span class="lbl">Excentricidade e</span><span class="val">${fmt(R.ecc,1)} cm</span></div>`;
+
+  document.getElementById('resumo-verificacoes').innerHTML = `
+    <div class="result-row"><span class="lbl">Ato — σsup / σinf</span><span class="val">${fmt(R.tAto.sup,2)} / ${fmt(R.tAto.inf,2)} MPa</span></div>
+    <div class="result-row"><span class="lbl">ELS-F — σsup / σinf</span><span class="val">${fmt(R.tFreq.sup,2)} / ${fmt(R.tFreq.inf,2)} MPa</span></div>
+    <div class="result-row"><span class="lbl">ELS-D — σsup / σinf</span><span class="val">${fmt(R.tQp.sup,2)} / ${fmt(R.tQp.inf,2)} MPa</span></div>`;
+}
+
+// inicialização
+onCaaChange();
+calcularTudo();
+</script>
+</body>
+</html>
